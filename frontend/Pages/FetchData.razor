@@ -1,0 +1,47 @@
+@page "/fetch"
+@using System.Net.Http.Json
+@inject HttpClient Http
+
+<h3>Products Page Loaded</h3>
+
+@if (!string.IsNullOrWhiteSpace(error))
+{
+    <p style="color:red">Error: @error</p>
+}
+else if (products == null)
+{
+    <p>Loading products...</p>
+}
+else
+{
+    <ul>
+        @foreach (var product in products)
+        {
+            <li>@product.Id - @product.Name</li>
+        }
+    </ul>
+}
+
+@code {
+    private Product[]? products;
+    private string? error;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            products = await Http.GetFromJsonAsync<Product[]>(
+                "http://localhost:5129/products");
+        }
+        catch (Exception ex)
+        {
+            error = ex.Message;
+        }
+    }
+
+    private class Product
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+    }
+}
